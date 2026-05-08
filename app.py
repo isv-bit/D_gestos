@@ -1,7 +1,7 @@
-```python
 import streamlit as st
 import cv2
 import numpy as np
+#from PIL import Image
 from PIL import Image as Image, ImageOps as ImagOps
 from keras.models import load_model
 import platform
@@ -22,28 +22,32 @@ st.markdown("""
 <style>
 
 .main {
-    background: linear-gradient(135deg, #0f172a, #1e1b4b, #111827);
+    background: linear-gradient(135deg, #0f172a, #1e293b, #111827);
     color: white;
 }
 
+/* TITULO */
 h1 {
-    color: #38bdf8 !important;
     text-align: center;
+    color: #38bdf8 !important;
     font-size: 3rem !important;
     font-weight: 800 !important;
 }
 
+/* SUBTITULOS */
 h2, h3 {
-    color: white !important;
+    color: #ffffff !important;
 }
 
+/* TEXO */
 .stMarkdown p {
     color: #dbeafe;
-    font-size: 17px;
+    font-size: 16px;
 }
 
+/* SIDEBAR */
 section[data-testid="stSidebar"] {
-    background: linear-gradient(180deg, #111827, #312e81);
+    background: linear-gradient(180deg, #111827, #1e3a8a);
     border-right: 2px solid #38bdf8;
 }
 
@@ -54,6 +58,7 @@ section[data-testid="stSidebar"] label {
     color: white !important;
 }
 
+/* CAMARA */
 div[data-testid="stCameraInput"] {
     background: rgba(255,255,255,0.05);
     padding: 20px;
@@ -61,28 +66,32 @@ div[data-testid="stCameraInput"] {
     border: 1px solid rgba(255,255,255,0.1);
 }
 
+/* IMAGEN */
 .css-1v0mbdj img {
     border-radius: 20px;
     border: 3px solid #38bdf8;
-    box-shadow: 0px 0px 20px rgba(56,189,248,0.4);
+    box-shadow: 0px 0px 25px rgba(56,189,248,0.4);
 }
 
-.stAlert {
-    border-radius: 15px;
-}
-
-.result-box {
+/* RESULTADOS */
+.resultado {
     background: linear-gradient(90deg, #06b6d4, #3b82f6);
     padding: 20px;
     border-radius: 18px;
-    color: white;
     text-align: center;
+    color: white;
     font-size: 24px;
     font-weight: bold;
     margin-top: 20px;
     box-shadow: 0px 0px 20px rgba(59,130,246,0.5);
 }
 
+/* ALERTAS */
+.stAlert {
+    border-radius: 15px;
+}
+
+/* ESPACIADO */
 .block-container {
     padding-top: 2rem;
 }
@@ -91,27 +100,27 @@ div[data-testid="stCameraInput"] {
 """, unsafe_allow_html=True)
 
 # =========================================
+# VERSIÓN PYTHON
+# =========================================
+st.info(f"🐍 Versión de Python: {platform.python_version()}")
+
+# =========================================
 # MODELO
 # =========================================
 model = load_model('keras_model.h5')
 data = np.ndarray(shape=(1, 224, 224, 3), dtype=np.float32)
 
 # =========================================
-# TÍTULO
+# TITULO
 # =========================================
 st.title("🤖 Reconocimiento de Imágenes")
 
 st.markdown("""
-<div style='text-align:center; color:#cbd5e1; font-size:18px; margin-bottom:25px;'>
-Sistema de reconocimiento utilizando un modelo entrenado en 
-<b>Teachable Machine</b> e inteligencia artificial.
+<div style='text-align:center; color:#cbd5e1; font-size:18px; margin-bottom:30px;'>
+Aplicación de inteligencia artificial entrenada con 
+<b>Teachable Machine</b> para reconocer imágenes en tiempo real.
 </div>
 """, unsafe_allow_html=True)
-
-# =========================================
-# INFORMACIÓN PYTHON
-# =========================================
-st.info(f"🐍 Versión de Python: {platform.python_version()}")
 
 # =========================================
 # IMAGEN PRINCIPAL
@@ -129,56 +138,57 @@ with st.sidebar:
     st.subheader("Modelo IA")
 
     st.markdown("""
-    Esta aplicación utiliza un modelo entrenado en 
-    <b>Teachable Machine</b> para reconocer imágenes 
-    tomadas desde la cámara 📸.
+    Usa un modelo entrenado en 
+    <b>Teachable Machine</b> para identificar imágenes 
+    tomadas desde tu cámara 📸.
     """, unsafe_allow_html=True)
 
     st.markdown("---")
 
     st.markdown("""
-    🔹 Detecta posiciones automáticamente.<br><br>
+    🔹 Reconocimiento automático.<br><br>
     🔹 Procesamiento en tiempo real.<br><br>
     🔹 Compatible con cámara web.
     """, unsafe_allow_html=True)
 
 # =========================================
-# CÁMARA
+# CAMARA
 # =========================================
 img_file_buffer = st.camera_input("📸 Toma una Foto")
 
 # =========================================
-# PROCESAMIENTO
+# PREDICCIÓN
 # =========================================
 if img_file_buffer is not None:
 
+    # To read image file buffer with OpenCV:
     data = np.ndarray(shape=(1, 224, 224, 3), dtype=np.float32)
 
-    # Leer imagen
+    # To read image file buffer as a PIL Image:
     img = Image.open(img_file_buffer)
 
-    # Redimensionar
     newsize = (224, 224)
     img = img.resize(newsize)
 
-    # Convertir a array
+    # To convert PIL Image to numpy array:
     img_array = np.array(img)
 
-    # Normalizar imagen
+    # Normalize the image
     normalized_image_array = (img_array.astype(np.float32) / 127.0) - 1
 
-    # Cargar datos
+    # Load the image into the array
     data[0] = normalized_image_array
 
-    # Predicción
+    # Run the inference
     prediction = model.predict(data)
 
-    st.subheader("📊 Resultado de la predicción")
+    print(prediction)
 
-    # RESULTADOS
+    st.subheader("📊 Resultado del reconocimiento")
+
     if prediction[0][0] > 0.5:
         st.markdown(f"""
-        <div class="result-box">
+        <div class="resultado">
         ⬅️ Izquierda <br>
         Probabilidad: {prediction[0][0]:.2f}
         </div>
@@ -186,11 +196,14 @@ if img_file_buffer is not None:
 
     if prediction[0][1] > 0.5:
         st.markdown(f"""
-        <div class="result-box">
+        <div class="resultado">
         ⬆️ Arriba <br>
         Probabilidad: {prediction[0][1]:.2f}
         </div>
         """, unsafe_allow_html=True)
+
+    #if prediction[0][2]>0.5:
+    # st.header('Derecha, con Probabilidad: '+str( prediction[0][2]))
 
 # =========================================
 # FOOTER
@@ -202,4 +215,3 @@ st.markdown("""
 🧠 Inteligencia Artificial + Streamlit + Keras
 </div>
 """, unsafe_allow_html=True)
-```
