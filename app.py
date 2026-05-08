@@ -125,7 +125,7 @@ Aplicación de inteligencia artificial entrenada con
 # =========================================
 # IMAGEN PRINCIPAL
 # =========================================
-image = Image.open('OIG5.jpg')
+image = Image.open('gestos.jpg')
 st.image(image, width=400)
 
 # =========================================
